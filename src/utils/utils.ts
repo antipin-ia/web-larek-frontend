@@ -1,3 +1,6 @@
+import { EventHandler, EventName, IOrderRequest } from '../types/index';
+import { IEvents } from '../components/base/events';
+
 export function pascalToKebab(value: string): string {
     return value.replace(/([a-z0–9])([A-Z])/g, "$1-$2").toLowerCase();
 }
@@ -133,3 +136,32 @@ export function createElement<
     }
     return element;
 }
+
+// Функция для получения элемента по селектору с проверкой его наличия
+export function getElementOrLogError<T extends Element>(
+  selector: string,
+  parent: ParentNode = document
+): T {
+    const element = parent.querySelector<T>(selector);
+    if (!element) {
+        console.error(`Element not found for selector: "${selector}".`);
+    }
+    return element as T;
+}
+
+// Функция для обработки ошибок формы и установки валидности
+export function handleErrors(
+  errors: Partial<IOrderRequest>,
+  fields: (keyof IOrderRequest)[],
+  setIsValid: (isValid: boolean) => void,
+  setErrorMessages: (message: string) => void
+): void {
+    const errorMessages = fields.map(field => errors[field]).filter(Boolean);
+    setIsValid(errorMessages.length === 0);
+    setErrorMessages(errorMessages.join('; ') || '');
+}
+
+// Утилита для привязки обработчика события
+export const handleModalEvent = (events: IEvents, event: EventName, action: EventHandler): void => {
+    events.on(event, action);
+};
