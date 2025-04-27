@@ -15,13 +15,24 @@
 • view — обеспечивает отображение пользовательского интерфейса.    
 • presenter — выступает связующим звеном между model и view, обрабатывая события и координируя логику приложения.    
 
-### Преимущества использования MVP  
+### Преимущества использования MVP
 
-• Модульность — каждый слой отвечает за строго определённые задачи, что упрощает отладку.  
-• Гибкость — логику взаимодействия (Presenter) можно легко изменять или расширять, не затрагивая другие слои.  
-• Масштабируемость — благодаря чёткому разделению, в проект легче добавлять новую функциональность  
+• Модульность — каждый слой отвечает за строго определённые задачи, что упрощает отладку.
+• Гибкость — логику взаимодействия (Presenter) можно легко изменять или расширять, не затрагивая другие слои.
+• Масштабируемость — благодаря чёткому разделению, в проект легче добавлять новую функциональность
 
-## Стек:   
+## Об архитектуре
+
+Взаимодействия внутри приложения происходят через события. Модели инициализируют события, слушатели событий в основном коде выполняют передачу данных компонентам отображения, а также вычисления между этой передачей, и еще они меняют значения в моделях.
+
+Основной поток взаимодействия:
+1. Пользователь совершает действие (клик, ввод данных и т.д.)
+2. View генерирует соответствующее событие
+3. Presenter (EventEmitter) обрабатывает событие и передает данные в Model
+4. Model обновляет свои данные и генерирует новые события
+5. Presenter получает события от Model и обновляет View
+
+## Стек:
 
 • HTML  
 • SCSS  
@@ -379,4 +390,63 @@ npm run build
 
 ```
 yarn build
+```
+
+## Основные типы и интерфейсы
+
+### Интерфейсы API
+```typescript
+interface IProduct {
+  id: string;
+  description: string;
+  image: string;
+  title: string;
+  category: TProductCategory;
+  price: number | null;
+}
+
+interface IProductList {
+  total: number;
+  items: IProduct[];
+}
+
+interface IOrderSuccess {
+  id: string;
+  total: number;
+}
+
+interface IError {
+  error: string;
+}
+
+interface IOrderRequest {
+  payment: string,
+  email: string;
+  phone: string;
+  address: string;
+  total: number;
+  items: string[];
+}
+```
+
+### Дополнительные типы
+```typescript
+type TProductCategory =
+  | 'софт-скил'
+  | 'другое'
+  | 'дополнительное'
+  | 'кнопка'
+  | 'хард-скил';
+
+interface IActions {
+  onClick: (event: MouseEvent) => void;
+}
+
+type OrderError = Record<string, string>
+
+type PaymentMethod = 'cash' | 'card'
+
+type EventName = 'renderSuccessWindow:close' | 'modal:open' | 'modal:close';
+
+type EventHandler = () => void;
 ```
