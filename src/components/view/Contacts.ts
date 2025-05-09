@@ -1,36 +1,18 @@
 import { IEvents } from "../base/events";
-import { getElementOrLogError } from '../../utils/utils';
+import { Form } from './Form';
 
 export interface IContacts {
-	form: HTMLFormElement;
 	inputs: HTMLInputElement[];
-	submitButton: HTMLButtonElement;
-	errorMessages: HTMLElement;
 	render(): HTMLElement;
 }
 
-export class Contacts implements IContacts {
-	form: HTMLFormElement;
+export class Contacts extends Form implements IContacts {
 	inputs: HTMLInputElement[];
-	submitButton: HTMLButtonElement;
-	errorMessages: HTMLElement;
 
-	constructor(template: HTMLTemplateElement, protected events: IEvents) {
-		this.form = getElementOrLogError<HTMLFormElement>('.form', template.content).cloneNode(true) as HTMLFormElement;
+	constructor(template: HTMLTemplateElement, events: IEvents) {
+		super(template, events, '.form', '.button', '.form__errors');
 		this.inputs = Array.from(this.form.querySelectorAll('.form__input'));
-		this.submitButton = getElementOrLogError<HTMLButtonElement>('.button', this.form);
-		this.errorMessages = getElementOrLogError<HTMLElement>('.form__errors', this.form);
-
 		this.attachInputListeners();
-		this.attachFormSubmitListener();
-	}
-
-	set isValid(value: boolean) {
-		this.submitButton.disabled = !value;
-	}
-
-	render(): HTMLElement {
-		return this.form;
 	}
 
 	private attachInputListeners(): void {
@@ -44,10 +26,7 @@ export class Contacts implements IContacts {
 		});
 	}
 
-	private attachFormSubmitListener(): void {
-		this.form.addEventListener('submit', (event: Event) => {
-			event.preventDefault();
-			this.events.emit('renderSuccessWindow:open');
-		});
+	protected handleSubmit(): void {
+		this.events.emit('renderSuccessWindow:open');
 	}
 }

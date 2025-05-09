@@ -120,7 +120,7 @@ events.on('orderForm:update', ({ isValid, errors }: { isValid: boolean; errors: 
 		errors,
 		['address', 'payment'],
 		() => (order.isValid = isValid),
-		message => (order.errorMessages.textContent = message)
+		message => (order.errors.textContent = message)
 	);
 });
 
@@ -142,7 +142,7 @@ events.on('orderError:isValid', (errors: Partial<IOrderRequest>) => {
 		errors,
 		['email', 'phone'],
 		isValid => (contacts.isValid = isValid),
-		message => (contacts.errorMessages.textContent = message)
+		message => (contacts.errors.textContent = message)
 	);
 });
 

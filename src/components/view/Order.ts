@@ -1,25 +1,18 @@
 import { IEvents } from "../base/events";
-import { getElementOrLogError } from '../../utils/utils';
+import { Form } from './Form';
 
 export interface IOrder {
-	form: HTMLFormElement;
 	buttons: HTMLButtonElement[];
 	paymentMethod: string;
-	errorMessages: HTMLElement;
 	render(): HTMLElement;
 }
 
-export class Order implements IOrder {
-	form: HTMLFormElement;
+export class Order extends Form implements IOrder {
 	buttons: HTMLButtonElement[];
-	submitButton: HTMLButtonElement;
-	errorMessages: HTMLElement;
 
-	constructor(template: HTMLTemplateElement, protected events: IEvents) {
-		this.form = getElementOrLogError<HTMLFormElement>('.form', template.content).cloneNode(true) as HTMLFormElement;
+	constructor(template: HTMLTemplateElement, events: IEvents) {
+		super(template, events, '.form', '.order__button', '.form__errors');
 		this.buttons = Array.from(this.form.querySelectorAll('.button_alt'));
-		this.submitButton = getElementOrLogError<HTMLButtonElement>('.order__button', this.form);
-		this.errorMessages = getElementOrLogError<HTMLElement>('.form__errors', this.form);
 
 		this.buttons.forEach(button => {
 			button.addEventListener('click', () => {
@@ -32,11 +25,6 @@ export class Order implements IOrder {
 			const target = event.target as HTMLInputElement;
 			this.events.emit('order:changeAddressValue', { field: target.name, value: target.value });
 		});
-
-		this.form.addEventListener('submit', (event: Event) => {
-			event.preventDefault();
-			this.events.emit('contacts:open');
-		});
 	}
 
 	set paymentMethod(payment: string) {
@@ -45,11 +33,7 @@ export class Order implements IOrder {
 		});
 	}
 
-	set isValid(value: boolean) {
-		this.submitButton.disabled = !value;
-	}
-
-	render() {
-		return this.form;
+	protected handleSubmit(): void {
+		this.events.emit('contacts:open');
 	}
 }
